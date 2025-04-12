@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NZWalks.API.Data;
 
@@ -11,9 +12,11 @@ using NZWalks.API.Data;
 namespace NZWalks.API.Migrations
 {
     [DbContext(typeof(NZWalksDbContext))]
-    partial class NZWalksDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250412065247_Seeding Data for Dificulty and Region")]
+    partial class SeedingDataforDificultyandRegion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,7 +83,7 @@ namespace NZWalks.API.Migrations
                         {
                             id = new Guid("69a8231e-22f4-4f72-99b6-e2b7bdc430e7"),
                             Code = "AKL",
-                            Name = "Auckland",
+                            Name = "AUCKLAND",
                             RegionImageUrl = "https://www.shutterstock.com/image-photo/beautiful-mountains-landscape-pictures-arang-kel-kashmir-2499596223"
                         },
                         new
@@ -102,17 +105,18 @@ namespace NZWalks.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("DifficultyId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("DifficultyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RegionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("RegionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("Regionsid")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("WalkImageUrl")
                         .HasColumnType("nvarchar(max)");
@@ -122,7 +126,30 @@ namespace NZWalks.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DifficultyId");
+
+                    b.HasIndex("Regionsid");
+
                     b.ToTable("Walks");
+                });
+
+            modelBuilder.Entity("NZWalks.API.Models.Domain.Walks", b =>
+                {
+                    b.HasOne("NZWalks.API.Models.Domain.Difficulty", "Difficulty")
+                        .WithMany()
+                        .HasForeignKey("DifficultyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NZWalks.API.Models.Domain.Regions", "Regions")
+                        .WithMany()
+                        .HasForeignKey("Regionsid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Difficulty");
+
+                    b.Navigation("Regions");
                 });
 #pragma warning restore 612, 618
         }
