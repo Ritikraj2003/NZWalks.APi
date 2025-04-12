@@ -30,7 +30,15 @@ namespace NZWalks.API.Controllers
             // Map domain Modal to  Dto
             return Ok(mapper.Map<WalkDto>(walkDomainModel));
 
+        }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+           var getWalk=  await walksRepository.GetAllAsync();
+
+            return Ok(mapper.Map<List<WalkDto>>(getWalk));
         }
     }
 }
