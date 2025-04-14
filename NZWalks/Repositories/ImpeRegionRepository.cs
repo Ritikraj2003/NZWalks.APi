@@ -14,7 +14,7 @@ namespace NZWalks.API.Repositories
             this.dbContext = dbContext;
         }
 
-        public NZWalksDbContext DbContext { get; }
+     
 
         public async Task<Regions> CreateAsync(Regions region)
         {

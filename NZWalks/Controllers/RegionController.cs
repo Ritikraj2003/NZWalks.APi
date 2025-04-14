@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NZWalks.API.CustomActionFilter;
 using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
@@ -73,15 +74,25 @@ namespace NZWalks.API.Controllers
         }
 
         [HttpPost]
+        [validateModel]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
         {
-            var regionDomainModel = mapper.Map<Regions>(addRegionRequestDto);
 
-            await regionRepository.CreateAsync(regionDomainModel);
+            //if(ModelState.IsValid)
+            //{
+                var regionDomainModel = mapper.Map<Regions>(addRegionRequestDto);
 
-            var regiondto = mapper.Map<ResgionDto>(regionDomainModel);
+                await regionRepository.CreateAsync(regionDomainModel);
 
-            return CreatedAtAction(nameof(GetById),new {id= regiondto.id},regiondto);
+                var regiondto = mapper.Map<ResgionDto>(regionDomainModel);
+
+                return CreatedAtAction(nameof(GetById), new { id = regiondto.id }, regiondto);
+            //}
+            //else
+            //{
+            //    return BadRequest(ModelState);
+            }
+               
         }
 
         //update region
@@ -89,15 +100,23 @@ namespace NZWalks.API.Controllers
         [Route("{id:Guid}")]
         public  async Task<IActionResult> UpdateById([FromRoute] Guid id, [FromBody] updateRegionDto updateRegionDto)
         {
-            //Map DTO TO main Model
-            var regionDomainModel = mapper.Map<Regions>(updateRegionDto);
+            if(ModelState.IsValid)
+            {
+                //Map DTO TO main Model
+                var regionDomainModel = mapper.Map<Regions>(updateRegionDto);
 
-            var updateDomainModel = await regionRepository.UpdateAsunc(id, regionDomainModel);
+                var updateDomainModel = await regionRepository.UpdateAsunc(id, regionDomainModel);
 
 
-            var resgiondto = mapper.Map<ResgionDto>(updateDomainModel);
+                var resgiondto = mapper.Map<ResgionDto>(updateDomainModel);
 
-            return Ok(resgiondto);
+                return Ok(resgiondto);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+                
         }
 
         [HttpDelete]
