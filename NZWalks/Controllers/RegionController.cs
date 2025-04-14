@@ -93,7 +93,7 @@ namespace NZWalks.API.Controllers
             //    return BadRequest(ModelState);
             }
                
-        }
+        
 
         //update region
         [HttpPut]
