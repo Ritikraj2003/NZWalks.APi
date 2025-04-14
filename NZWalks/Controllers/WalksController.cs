@@ -43,15 +43,13 @@ namespace NZWalks.API.Controllers
 
         //Get all controller ..........
         [HttpGet]
-
-        public async Task<IActionResult> GetAll([FromQuery] string? FilterOn , [FromQuery] string?fillterQuary)
+        public async Task<IActionResult> GetAll([FromQuery] string? FilterOn , [FromQuery] string? fillterQuary, [FromQuery] string? sort, [FromQuery] bool? isascending)
         {
-            var getWalk = await walksRepository.GetAllAsync(FilterOn,fillterQuary);
+            var getWalk = await walksRepository.GetAllAsync(FilterOn,fillterQuary,sort,isascending??true);
 
             return Ok(mapper.Map<List<WalkDto>>(getWalk));
            
         }
-
         //Get by id controller ..........
         [HttpGet]
         [Route("{id}")]
