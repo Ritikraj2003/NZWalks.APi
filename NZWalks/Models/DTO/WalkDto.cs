@@ -10,7 +10,7 @@
         //public Guid? RegionId { get; set; }
         //public Guid DifficultyId { get; set; }
 
-        public ResgionDto Regions { get; set; }
+        public ResgionDto Region { get; set; }
         public DificultyDto Difficulty { get; set; }
     }
 }
