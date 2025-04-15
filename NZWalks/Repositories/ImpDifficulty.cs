@@ -38,6 +38,26 @@ namespace NZWalks.API.Repositories
         {
           return  await dbContext.Difficulties.ToListAsync();
         }
+
+        public async Task<Difficulty> GetById(Guid id)
+        {
+            return await dbContext.Difficulties.FirstOrDefaultAsync(x=>x.id==id);
+        }
+
+
+
+        public async Task<Difficulty> Update(Guid id, Difficulty difficulty)
+        {
+            var DomainModel = await dbContext.Difficulties.FirstOrDefaultAsync(x => x.id == id);
+            if (DomainModel == null)
+            {
+                return null;
+            }
+
+            DomainModel.name = difficulty.name;
+            await dbContext.SaveChangesAsync();
+            return difficulty;
+        }
     }
 
 }

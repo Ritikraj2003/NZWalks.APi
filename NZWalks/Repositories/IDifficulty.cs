@@ -7,5 +7,7 @@ namespace NZWalks.API.Repositories
         Task<List<Difficulty>>GetAll();
         Task<Difficulty> Create(Difficulty difficulty);
         Task<Difficulty> DeleteById(Guid id);
+        Task<Difficulty>GetById(Guid id);
+        Task<Difficulty> Update(Guid id ,Difficulty difficulty);
     }
 }

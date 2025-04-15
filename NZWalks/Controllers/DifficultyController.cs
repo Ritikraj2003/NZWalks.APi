@@ -14,7 +14,7 @@ namespace NZWalks.API.Controllers
         private readonly IDifficulty difficultyRepo;
         private readonly IMapper mapper;
 
-        public DifficultyController(IDifficulty difficultyRepo,IMapper mapper)
+        public DifficultyController(IDifficulty difficultyRepo, IMapper mapper)
         {
             this.difficultyRepo = difficultyRepo;
             this.mapper = mapper;
@@ -23,7 +23,7 @@ namespace NZWalks.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-         var DifficultyDomainModel=  await difficultyRepo.GetAll();
+            var DifficultyDomainModel = await difficultyRepo.GetAll();
 
             //map  Domain model  to Dto
             return Ok(mapper.Map<List<DificultyDto>>(DifficultyDomainModel));
@@ -31,7 +31,7 @@ namespace NZWalks.API.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult>Create(AddDifficulty addDifficultyDto)
+        public async Task<IActionResult> Create(AddDifficulty addDifficultyDto)
         {
             //Map Dto To Domain Model
             var addDifficulty = mapper.Map<Difficulty>(addDifficultyDto);
@@ -50,10 +50,31 @@ namespace NZWalks.API.Controllers
         [Route("{id:Guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var  deletedModel= await difficultyRepo.DeleteById(id);
+            var deletedModel = await difficultyRepo.DeleteById(id);
 
             return Ok(mapper.Map<DificultyDto>(deletedModel));
 
         }
+
+        [HttpGet]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            var DifficultyDomainModel = await difficultyRepo.GetById(id);
+
+            return Ok(mapper.Map<DificultyDto>(DifficultyDomainModel));
+        }
+
+        [HttpPut]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> UpdateById([FromRoute] Guid id, AddDifficulty addDifficulty)
+        {
+            var difficulty = mapper.Map<Difficulty>(addDifficulty);
+            var DomainModel = await difficultyRepo.Update(id, difficulty);
+
+            return Ok(difficulty);
+
+        }
+    
     }
 }
