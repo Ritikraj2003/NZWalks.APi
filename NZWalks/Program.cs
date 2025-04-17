@@ -1,32 +1,86 @@
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NZWalks.API.Data;
 using NZWalks.API.Mappings;
 using NZWalks.API.Repositories;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "NZ Wakls Api", Version = "v1" });
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = JwtBearerDefaults.AuthenticationScheme
+    });
 
-// Configure DbContext for main application data
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference= new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id=JwtBearerDefaults.AuthenticationScheme
+                },
+                Scheme="Outh2",
+                Name=JwtBearerDefaults.AuthenticationScheme,
+                In= ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+});
+
+// ✅ Configure DbContext for main application data
 builder.Services.AddDbContext<NZWalksDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
 
-// Configure DbContext for authentication (Identity)
+// ✅ Fixed: Configure DbContext for authentication (Identity)
 builder.Services.AddDbContext<NZWalkAuthDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalkAuthConnectionString")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksAuthConnectionString"))); // 🔥 Fixed the key
 
 // Dependency Injection for Repositories
 builder.Services.AddScoped<IRegionRepository, ImpeRegionRepository>();
 builder.Services.AddScoped<IWalksRepository, ImpWalksRepository>();
 builder.Services.AddScoped<IDifficulty, ImpDifficulty>();
 builder.Services.AddAutoMapper(typeof(AutomapperProfile));
+builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+
+
+
+builder.Services.AddIdentityCore<IdentityUser>()
+     .AddRoles<IdentityRole>()
+     .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("NZWalks") 
+     .AddEntityFrameworkStores<NZWalkAuthDbContext>()
+     .AddDefaultTokenProviders(); // 🔥 Added default token providers for password reset, email confirmation, etc.
+
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    //// Lockout settings
+    //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    //options.Lockout.MaxFailedAccessAttempts = 5;
+    //options.Lockout.AllowedForNewUsers = true;
+    //// User settings
+    //options.User.RequireUniqueEmail = true;
+});
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -54,7 +108,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication(); // Make sure authentication middleware comes before authorization
+
+app.UseAuthentication(); // Authentication comes before authorization
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
