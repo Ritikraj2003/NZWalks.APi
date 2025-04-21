@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,20 +21,41 @@ namespace NZWalks.API.Controllers
         private readonly NZWalksDbContext dbContext;
         private readonly IRegionRepository regionRepository;
         private readonly IMapper mapper;
+        private readonly ILogger logger1;
 
-        public RegionController(NZWalksDbContext dbContext, IRegionRepository regionRepository ,IMapper mapper)
+        public RegionController(NZWalksDbContext dbContext, IRegionRepository regionRepository ,IMapper mapper, ILogger<RegionController> logger1)
         {
             this.dbContext = dbContext;
             this.regionRepository = regionRepository;
             this.mapper = mapper;
+            this.logger1 = logger1;
         }
 
         [HttpGet]
-        [Authorize(Roles ="Reader")]
+        //[Authorize(Roles ="Reader")]
         public async Task<IActionResult>GetAll()
         {
-            var regions=  await regionRepository.GetAllAsync();
-            return Ok(mapper.Map<List<ResgionDto>>(regions));
+            //logger1.LogInformation("Get ALl Action Method was Invoke....");
+
+            //logger1.LogWarning("THis is a warring message...");
+
+            //logger1.LogError("This is an error Log");
+            
+
+            try
+            {
+                throw new Exception("This is a custom exception");
+                var regions = await regionRepository.GetAllAsync();
+
+                logger1.LogInformation($"Finished GetAllRegions request with data: {JsonSerializer.Serialize(regions)}");
+                return Ok(mapper.Map<List<ResgionDto>>(regions));
+            }
+            catch (Exception ex) 
+            {
+                logger1.LogError(ex,ex.Message);
+                throw;
+            }
+
             
         }
 

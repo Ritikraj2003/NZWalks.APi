@@ -45,7 +45,13 @@ namespace NZWalks.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] string? FilterOn , [FromQuery] string? fillterQuary, [FromQuery] string? sort, [FromQuery] bool? isascending)
         {
+
+
             var getWalk = await walksRepository.GetAllAsync(FilterOn,fillterQuary,sort,isascending??true);
+
+            //create an exceptions
+
+            throw new Exception("This is a custom exception");
 
             return Ok(mapper.Map<List<WalkDto>>(getWalk));
            
