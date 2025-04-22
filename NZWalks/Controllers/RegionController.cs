@@ -42,19 +42,19 @@ namespace NZWalks.API.Controllers
             //logger1.LogError("This is an error Log");
             
 
-            try
-            {
-                throw new Exception("This is a custom exception");
+            //try
+           // {
+               // throw new Exception("This is a custom exception");
                 var regions = await regionRepository.GetAllAsync();
 
-                logger1.LogInformation($"Finished GetAllRegions request with data: {JsonSerializer.Serialize(regions)}");
+                //logger1.LogInformation($"Finished GetAllRegions request with data: {JsonSerializer.Serialize(regions)}");
                 return Ok(mapper.Map<List<ResgionDto>>(regions));
-            }
-            catch (Exception ex) 
-            {
-                logger1.LogError(ex,ex.Message);
-                throw;
-            }
+            //}
+            //catch (Exception ex) 
+           // {
+           //     logger1.LogError(ex,ex.Message);
+            //    throw;
+           // }
 
             
         }
